@@ -1,0 +1,629 @@
+Technical Specification: Interactive Presentation Style System 
+Project Overview
+Objective: Create a reusable design system for interactive presentations with glassmorphism effects, smooth animations, and modern UI patterns.
+Target: Corporate presentations, startup pitches, product demos, analytical reports.
+Technology Stack
+
+Required Libraries & Dependencies
+<!-- Icon Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+<!-- Optional Animation Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+<!-- Font Loading -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+Performance Requirements
+	• First Contentful Paint: < 1.5s
+	• Animation frame rate: 60fps
+	• Bundle size: < 500KB
+	• No layout shifts (CLS = 0)
+Navigation System Architecture
+1. Slide Navigation Component
+<!-- Slide Container Structure -->
+<div class="presentation-container">
+  <div class="slide-counter">
+    <span id="current-slide">1</span> / <span id="total-slides">8</span>
+  </div>
+  
+  <!-- Slides -->
+  <div class="slide active" data-slide="0">
+    <!-- Slide content -->
+  </div>
+  <div class="slide" data-slide="1">
+    <!-- Slide content -->
+  </div>
+  <!-- More slides -->
+  
+  <!-- Navigation Controls -->
+  <div class="navigation">
+    <button class="nav-btn nav-btn--prev" id="prev-btn">
+      <i data-lucide="chevron-left"></i>
+      Previous
+    </button>
+    <button class="nav-btn nav-btn--next" id="next-btn">
+      Next
+      <i data-lucide="chevron-right"></i>
+    </button>
+  </div>
+</div>
+2. Navigation CSS Styles
+/* Slide System */
+.presentation-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.slide {
+  display: none;
+  padding: 60px;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  animation: slideIn 0.6s ease-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.slide.active {
+  display: flex;
+  position: relative;
+}
+/* Slide Transitions */
+.slide.slide-in-right {
+  animation: slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide.slide-in-left {
+  animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide.slide-out-left {
+  animation: slideOutLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide.slide-out-right {
+  animation: slideOutRight 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100px) scale(0.95);
+  }
+}
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100px) scale(0.95);
+  }
+}
+/* Navigation Buttons */
+.navigation {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--spacing-md);
+  z-index: 1000;
+}
+.nav-btn {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 500;
+  backdrop-filter: var(--blur-lg);
+  border: 1px solid var(--glass-border);
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: var(--shadow-glass);
+  font-family: var(--font-primary);
+}
+.nav-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--glass-hover-border);
+}
+.nav-btn:active:not(:disabled) {
+  transform: translateY(-2px) scale(0.98);
+}
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+.nav-btn:disabled:hover {
+  transform: none;
+  box-shadow: var(--shadow-glass);
+}
+/* Slide Counter */
+.slide-counter {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  padding: 12px 24px;
+  border-radius: 30px;
+  backdrop-filter: var(--blur-lg);
+  border: 1px solid var(--glass-border);
+  font-weight: 500;
+  font-size: 1rem;
+  box-shadow: var(--shadow-glass);
+  z-index: 1000;
+  font-family: var(--font-primary);
+}
+/* Progress Indicator (Optional) */
+.progress-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 1001;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  width: 0%;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+3. Core Navigation JavaScript
+class PresentationNavigator {
+  constructor(options = {}) {
+    this.currentSlide = 0;
+    this.slides = [];
+    this.totalSlides = 0;
+    this.isTransitioning = false;
+    this.autoPlay = options.autoPlay || false;
+    this.autoPlayInterval = options.autoPlayInterval || 5000;
+    this.enableKeyboard = options.enableKeyboard !== false;
+    this.enableMouse = options.enableMouse !== false;
+    this.enableTouch = options.enableTouch !== false;
+    
+    this.init();
+  }
+init() {
+    this.slides = document.querySelectorAll('.slide');
+    this.totalSlides = this.slides.length;
+    
+    this.initializeElements();
+    this.bindEvents();
+    this.showSlide(0);
+    
+    if (this.autoPlay) {
+      this.startAutoPlay();
+    }
+  }
+initializeElements() {
+    // Update total slides counter
+    const totalSlidesElement = document.getElementById('total-slides');
+    if (totalSlidesElement) {
+      totalSlidesElement.textContent = this.totalSlides;
+    }
+// Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  }
+bindEvents() {
+    // Keyboard navigation
+    if (this.enableKeyboard) {
+      document.addEventListener('keydown', (e) => this.handleKeydown(e));
+    }
+// Mouse/Button navigation
+    if (this.enableMouse) {
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => this.previousSlide());
+      }
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => this.nextSlide());
+      }
+    }
+// Touch/Swipe navigation
+    if (this.enableTouch) {
+      this.bindTouchEvents();
+    }
+// Window resize handler
+    window.addEventListener('resize', () => this.handleResize());
+  }
+handleKeydown(e) {
+    // Prevent navigation during transitions
+    if (this.isTransitioning) return;
+switch (e.key) {
+      case 'ArrowRight':
+      case ' ': // Spacebar
+      case 'PageDown':
+        e.preventDefault();
+        this.nextSlide();
+        break;
+      
+      case 'ArrowLeft':
+      case 'PageUp':
+        e.preventDefault();
+        this.previousSlide();
+        break;
+      
+      case 'Home':
+        e.preventDefault();
+        this.goToSlide(0);
+        break;
+      
+      case 'End':
+        e.preventDefault();
+        this.goToSlide(this.totalSlides - 1);
+        break;
+      
+      case 'Escape':
+        e.preventDefault();
+        this.toggleFullscreen();
+        break;
+    }
+  }
+bindTouchEvents() {
+    let startX = 0;
+    let endX = 0;
+    const threshold = 50; // Minimum swipe distance
+document.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+document.addEventListener('touchend', (e) => {
+      endX = e.changedTouches[0].clientX;
+      this.handleSwipe(startX, endX, threshold);
+    }, { passive: true });
+  }
+handleSwipe(startX, endX, threshold) {
+    const distance = endX - startX;
+    
+    if (Math.abs(distance) > threshold) {
+      if (distance > 0) {
+        this.previousSlide(); // Swipe right = previous
+      } else {
+        this.nextSlide(); // Swipe left = next
+      }
+    }
+  }
+showSlide(index, direction = 'next') {
+    if (this.isTransitioning || index < 0 || index >= this.totalSlides) {
+      return;
+    }
+this.isTransitioning = true;
+    
+    const currentSlideElement = this.slides[this.currentSlide];
+    const nextSlideElement = this.slides[index];
+// Remove all animation classes
+    this.slides.forEach(slide => {
+      slide.classList.remove('active', 'slide-in-left', 'slide-in-right', 'slide-out-left', 'slide-out-right');
+    });
+// Animate out current slide
+    if (currentSlideElement && this.currentSlide !== index) {
+      const outClass = direction === 'next' ? 'slide-out-left' : 'slide-out-right';
+      currentSlideElement.classList.add(outClass);
+    }
+// Animate in next slide
+    const inClass = direction === 'next' ? 'slide-in-right' : 'slide-in-left';
+    nextSlideElement.classList.add('active', inClass);
+// Update current slide
+    this.currentSlide = index;
+// Update UI elements
+    this.updateUI();
+// Re-initialize icons for new slide
+    setTimeout(() => {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+      this.isTransitioning = false;
+    }, 600); // Match animation duration
+  }
+nextSlide() {
+    if (this.currentSlide < this.totalSlides - 1) {
+      this.showSlide(this.currentSlide + 1, 'next');
+    }
+  }
+previousSlide() {
+    if (this.currentSlide > 0) {
+      this.showSlide(this.currentSlide - 1, 'prev');
+    }
+  }
+goToSlide(index) {
+    const direction = index > this.currentSlide ? 'next' : 'prev';
+    this.showSlide(index, direction);
+  }
+updateUI() {
+    // Update slide counter
+    const currentSlideElement = document.getElementById('current-slide');
+    if (currentSlideElement) {
+      currentSlideElement.textContent = this.currentSlide + 1;
+    }
+// Update navigation buttons
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    
+    if (prevBtn) {
+      prevBtn.disabled = this.currentSlide === 0;
+    }
+    
+    if (nextBtn) {
+      nextBtn.disabled = this.currentSlide === this.totalSlides - 1;
+    }
+// Update progress bar
+    this.updateProgressBar();
+  }
+updateProgressBar() {
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+      const progress = ((this.currentSlide + 1) / this.totalSlides) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+  }
+// Auto-play functionality
+  startAutoPlay() {
+    this.autoPlayTimer = setInterval(() => {
+      if (this.currentSlide < this.totalSlides - 1) {
+        this.nextSlide();
+      } else {
+        this.goToSlide(0); // Loop back to start
+      }
+    }, this.autoPlayInterval);
+  }
+stopAutoPlay() {
+    if (this.autoPlayTimer) {
+      clearInterval(this.autoPlayTimer);
+      this.autoPlayTimer = null;
+    }
+  }
+toggleAutoPlay() {
+    if (this.autoPlayTimer) {
+      this.stopAutoPlay();
+    } else {
+      this.startAutoPlay();
+    }
+  }
+// Fullscreen functionality
+  toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+// Responsive handling
+  handleResize() {
+    // Recalculate layouts if needed
+    // Re-initialize animations
+    setTimeout(() => {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }, 100);
+  }
+// Public API methods
+  getCurrentSlide() {
+    return this.currentSlide;
+  }
+getTotalSlides() {
+    return this.totalSlides;
+  }
+isFirstSlide() {
+    return this.currentSlide === 0;
+  }
+isLastSlide() {
+    return this.currentSlide === this.totalSlides - 1;
+  }
+}
+// Initialize presentation
+document.addEventListener('DOMContentLoaded', function() {
+  window.presentation = new PresentationNavigator({
+    enableKeyboard: true,
+    enableMouse: true,
+    enableTouch: true,
+    autoPlay: false,
+    autoPlayInterval: 5000
+  });
+});
+// Expose global navigation functions for backward compatibility
+function nextSlide() {
+  if (window.presentation) {
+    window.presentation.nextSlide();
+  }
+}
+function previousSlide() {
+  if (window.presentation) {
+    window.presentation.previousSlide();
+  }
+}
+function goToSlide(index) {
+  if (window.presentation) {
+    window.presentation.goToSlide(index);
+  }
+}
+4. Advanced Navigation Features
+Slide Indicators/Dots
+<div class="slide-indicators">
+  <button class="slide-dot active" data-slide="0"></button>
+  <button class="slide-dot" data-slide="1"></button>
+  <button class="slide-dot" data-slide="2"></button>
+  <!-- More dots -->
+</div>
+.slide-indicators {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 1000;
+}
+.slide-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+.slide-dot.active {
+  background: var(--accent-blue);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+.slide-dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(1.2);
+}
+Keyboard Shortcuts Help
+<div class="keyboard-help" id="keyboard-help">
+  <div class="keyboard-help__content">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-list">
+      <div class="shortcut-item">
+        <kbd>→</kbd> <kbd>Space</kbd> <span>Next slide</span>
+      </div>
+      <div class="shortcut-item">
+        <kbd>←</kbd> <span>Previous slide</span>
+      </div>
+      <div class="shortcut-item">
+        <kbd>Home</kbd> <span>First slide</span>
+      </div>
+      <div class="shortcut-item">
+        <kbd>End</kbd> <span>Last slide</span>
+      </div>
+      <div class="shortcut-item">
+        <kbd>Esc</kbd> <span>Toggle fullscreen</span>
+      </div>
+    </div>
+  </div>
+</div>
+5. Responsive Navigation
+@media (max-width: 768px) {
+  .navigation {
+    bottom: 20px;
+    gap: var(--spacing-sm);
+  }
+  
+  .nav-btn {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+  
+  .slide-counter {
+    top: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+  
+  .slide-indicators {
+    bottom: 80px;
+  }
+  
+  .slide-dot {
+    width: 10px;
+    height: 10px;
+  }
+}
+@media (max-width: 480px) {
+  .nav-btn span {
+    display: none; /* Hide text, show only icons */
+  }
+  
+  .nav-btn {
+    padding: 12px;
+    gap: 0;
+  }
+}
+6. Accessibility Enhancements
+// ARIA support
+updateUI() {
+  // Update slide counter
+  const currentSlideElement = document.getElementById('current-slide');
+  if (currentSlideElement) {
+    currentSlideElement.textContent = this.currentSlide + 1;
+  }
+// Update ARIA attributes
+  this.slides.forEach((slide, index) => {
+    slide.setAttribute('aria-hidden', index !== this.currentSlide);
+    if (index === this.currentSlide) {
+      slide.setAttribute('aria-live', 'polite');
+    }
+  });
+// Update navigation buttons
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  
+  if (prevBtn) {
+    prevBtn.disabled = this.currentSlide === 0;
+    prevBtn.setAttribute('aria-label', `Previous slide (${this.currentSlide}/${this.totalSlides})`);
+  }
+  
+  if (nextBtn) {
+    nextBtn.disabled = this.currentSlide === this.totalSlides - 1;
+    nextBtn.setAttribute('aria-label', `Next slide (${this.currentSlide + 2}/${this.totalSlides})`);
+  }
+// Announce slide change to screen readers
+  this.announceSlideChange();
+}
+announceSlideChange() {
+  const announcement = `Slide ${this.currentSlide + 1} of ${this.totalSlides}`;
+  
+  // Create or update screen reader announcement
+  let announcer = document.getElementById('slide-announcer');
+  if (!announcer) {
+    announcer = document.createElement('div');
+    announcer.id = 'slide-announcer';
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-10000px';
+    announcer.style.width = '1px';
+    announcer.style.height = '1px';
+    announcer.style.overflow = 'hidden';
+    document.body.appendChild(announcer);
+  }
+  
+  announcer.textContent = announcement;
+}
